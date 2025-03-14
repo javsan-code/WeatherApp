@@ -3,9 +3,7 @@ package com.mycompany.weatherapp;
 import io.github.cdimascio.dotenv.Dotenv;
 import java.net.HttpURLConnection;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
@@ -15,24 +13,22 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 import java.net.URLEncoder;
 import com.formdev.flatlaf.FlatDarkLaf;
+import java.util.prefs.Preferences;
 
-/**
- *
- * @author javie
- */
 public class WeatherApp extends javax.swing.JFrame {
 
     private static final String URL = "https://api.openweathermap.org/data/2.5/weather?q=";
     private static Dotenv dotenv;
     private static String API_KEY = "";
+    private static final String CITY_PREFERENCE = "";
 
     /**
      * Creates new form WeatherAppGUI
      */
     public WeatherApp() {
-        initComponents();
         dotenv = Dotenv.load();
         API_KEY = dotenv.get("OPENWEATHER_API_KEY");
+        initComponents();
     }
 
     /**
@@ -137,6 +133,11 @@ public class WeatherApp extends javax.swing.JFrame {
                 .addContainerGap(110, Short.MAX_VALUE))
         );
 
+        Preferences prefs = Preferences.userNodeForPackage(WeatherApp.class);
+        String preferredCity = prefs.get(CITY_PREFERENCE , "New York");
+        searchTextField.setText(preferredCity);
+        getWeatherData();
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -156,10 +157,20 @@ public class WeatherApp extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void searchTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTextFieldActionPerformed
+        String searchText = searchTextField.getText();
+        if (!searchText.isEmpty()) {
+            Preferences pref = Preferences.userNodeForPackage(WeatherApp.class);
+            pref.put(CITY_PREFERENCE, searchText);
+        }
         getWeatherData();
     }//GEN-LAST:event_searchTextFieldActionPerformed
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        String searchText = searchTextField.getText();
+        if (!searchText.isEmpty()) {
+            Preferences pref = Preferences.userNodeForPackage(WeatherApp.class);
+            pref.put(CITY_PREFERENCE, searchText);
+        }
         getWeatherData();
     }//GEN-LAST:event_searchButtonActionPerformed
 
@@ -169,9 +180,9 @@ public class WeatherApp extends javax.swing.JFrame {
     }
 
     private void getWeatherData() {
-        String cityName = "New York";
+        String cityName = searchTextField.getText();
         try {
-            String urlString = URL + URLEncoder.encode(cityName, "UTF-8") + "&appid=" + API_KEY;
+            String urlString = URL + URLEncoder.encode(cityName, "UTF-8") + "&appid=" + API_KEY + "&units=imperial";
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -185,10 +196,6 @@ public class WeatherApp extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(WeatherApp.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    private void displayWeather() {
-
     }
 
     private void readJsonData(JSONObject json) {
