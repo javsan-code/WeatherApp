@@ -1,13 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package com.mycompany.weatherapp;
 
-/**
- *
- * @author javie
- */
+import java.net.HttpURLConnection;
+import java.io.BufferedReader;
+import org.json.JSONObject;
+
 public class WeatherApp {
 
     public static void main(String[] args) {
