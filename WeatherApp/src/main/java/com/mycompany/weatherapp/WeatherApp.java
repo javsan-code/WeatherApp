@@ -13,7 +13,12 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 import java.net.URLEncoder;
 import com.formdev.flatlaf.FlatDarkLaf;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.Timer;
 import java.util.prefs.Preferences;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class WeatherApp extends javax.swing.JFrame {
 
@@ -21,6 +26,9 @@ public class WeatherApp extends javax.swing.JFrame {
     private static Dotenv dotenv;
     private static String API_KEY = "";
     private static final String CITY_PREFERENCE = "";
+    private static String GOOGLE_API_KEY = "";
+    private Timer timer;
+    private Timer autoCompleteTimer;
 
     /**
      * Creates new form WeatherAppGUI
@@ -28,7 +36,10 @@ public class WeatherApp extends javax.swing.JFrame {
     public WeatherApp() {
         dotenv = Dotenv.load();
         API_KEY = dotenv.get("OPENWEATHER_API_KEY");
+        GOOGLE_API_KEY = dotenv.get("GOOGLE_PLACES_API_KEY");
         initComponents();
+        autoCompleteScrollPane.setVisible(false);
+        searchTextField.getDocument().addDocumentListener(documentListener);
     }
 
     /**
@@ -39,10 +50,14 @@ public class WeatherApp extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        mainPanel = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         searchButton = new javax.swing.JButton();
         searchTextField = new javax.swing.JTextField();
+        autoCompleteScrollPane = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
+        mainPanel = new javax.swing.JPanel();
         temperatureTextField = new javax.swing.JTextField();
         temperatureLabel = new javax.swing.JLabel();
         maxTemperatureTextField = new javax.swing.JTextField();
@@ -54,18 +69,55 @@ public class WeatherApp extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
         searchButton.setText("Search");
         searchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchButtonActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 26);
+        jPanel1.add(searchButton, gridBagConstraints);
 
         searchTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchTextFieldActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 5, 0, 0);
+        jPanel1.add(searchTextField, gridBagConstraints);
+        Preferences prefs = Preferences.userNodeForPackage(WeatherApp.class);
+        String preferredCity = prefs.get(CITY_PREFERENCE , "New York");
+        searchTextField.setText(preferredCity);
+        getWeatherData();
+
+        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jList1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        autoCompleteScrollPane.setViewportView(jList1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        jPanel1.add(autoCompleteScrollPane, gridBagConstraints);
 
         temperatureTextField.setEnabled(false);
 
@@ -88,33 +140,28 @@ public class WeatherApp extends javax.swing.JFrame {
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(23, 23, 23)
+                .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(maxTemperatureLabel)
                             .addComponent(feelsLikeTemperatureLabel)
-                            .addComponent(minTemperatureLabel)
-                            .addComponent(temperatureLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
+                            .addComponent(minTemperatureLabel))
+                        .addGap(44, 44, 44)
                         .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(minTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(feelsLikeTemeratureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(maxTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(temperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(searchTextField))
-                .addGap(11, 11, 11)
-                .addComponent(searchButton)
-                .addGap(32, 32, 32))
+                            .addComponent(minTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(temperatureLabel)
+                        .addGap(97, 97, 97)
+                        .addComponent(temperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(233, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(searchButton)
-                    .addComponent(searchTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(37, 37, 37)
+                .addGap(84, 84, 84)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(temperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(temperatureLabel))
@@ -130,40 +177,27 @@ public class WeatherApp extends javax.swing.JFrame {
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(minTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(minTemperatureLabel))
-                .addContainerGap(110, Short.MAX_VALUE))
+                .addContainerGap(126, Short.MAX_VALUE))
         );
-
-        Preferences prefs = Preferences.userNodeForPackage(WeatherApp.class);
-        String preferredCity = prefs.get(CITY_PREFERENCE , "New York");
-        searchTextField.setText(preferredCity);
-        getWeatherData();
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(mainPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void searchTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTextFieldActionPerformed
-        String searchText = searchTextField.getText();
-        if (!searchText.isEmpty()) {
-            Preferences pref = Preferences.userNodeForPackage(WeatherApp.class);
-            pref.put(CITY_PREFERENCE, searchText);
-        }
-        getWeatherData();
-    }//GEN-LAST:event_searchTextFieldActionPerformed
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
         String searchText = searchTextField.getText();
@@ -174,9 +208,30 @@ public class WeatherApp extends javax.swing.JFrame {
         getWeatherData();
     }//GEN-LAST:event_searchButtonActionPerformed
 
+    private void searchTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTextFieldActionPerformed
+        String searchText = searchTextField.getText();
+        if (!searchText.isEmpty()) {
+            Preferences pref = Preferences.userNodeForPackage(WeatherApp.class);
+            pref.put(CITY_PREFERENCE, searchText);
+        }
+        getWeatherData();
+    }//GEN-LAST:event_searchTextFieldActionPerformed
+
     public static void main(String[] args) {
         FlatDarkLaf.setup();
         new WeatherApp().setVisible(true);
+    }
+
+    private final ActionListener timerAction = (ActionEvent e) -> {
+        getWeatherData();
+    };
+
+    private void startTimer() {
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+        }
+        timer = new Timer(60000, timerAction);
+        timer.start();
     }
 
     private void getWeatherData() {
@@ -196,6 +251,7 @@ public class WeatherApp extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(WeatherApp.class.getName()).log(Level.SEVERE, null, ex);
         }
+        startTimer();
     }
 
     private void readJsonData(JSONObject json) {
@@ -230,9 +286,66 @@ public class WeatherApp extends javax.swing.JFrame {
         return "";
     }
 
+    DocumentListener documentListener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            startAutoCompleteTimer();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            startAutoCompleteTimer();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+
+        }
+    };
+
+    private void startAutoCompleteTimer() {
+        if (autoCompleteTimer != null && autoCompleteTimer.isRunning()) {
+            autoCompleteTimer.stop();
+        }
+        autoCompleteTimer = new Timer(1000, autoCompleteAction);
+        autoCompleteTimer.start();
+    }
+
+    private ActionListener autoCompleteAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //Call Autocomplete API and update jlist in SwingUtlities
+            updateJList();
+
+        }
+    };
+
+    private void updateJList() {
+        String currentInput = searchTextField.getText();
+        String autocompleteAPI = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=";
+        try {
+            String urlString = autocompleteAPI + URLEncoder.encode(currentInput, "UTF-8") + "&types=(cities)&key=" + GOOGLE_API_KEY;
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/json");
+            String data = readData(connection);
+            JSONObject json = new JSONObject(data);
+            //get the predictions and add them to the jlist
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(WeatherApp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(WeatherApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane autoCompleteScrollPane;
     private javax.swing.JTextField feelsLikeTemeratureTextField;
     private javax.swing.JLabel feelsLikeTemperatureLabel;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel maxTemperatureLabel;
     private javax.swing.JTextField maxTemperatureTextField;
