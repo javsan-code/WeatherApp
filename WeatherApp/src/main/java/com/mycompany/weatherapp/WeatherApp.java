@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
 import java.net.URLEncoder;
+import com.formdev.flatlaf.FlatDarkLaf;
 
 /**
  *
@@ -30,7 +31,8 @@ public class WeatherApp extends javax.swing.JFrame {
      */
     public WeatherApp() {
         initComponents();
-
+        dotenv = Dotenv.load();
+        API_KEY = dotenv.get("OPENWEATHER_API_KEY");
     }
 
     /**
@@ -42,30 +44,131 @@ public class WeatherApp extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        mainPanel = new javax.swing.JPanel();
+        searchButton = new javax.swing.JButton();
+        searchTextField = new javax.swing.JTextField();
+        temperatureTextField = new javax.swing.JTextField();
+        temperatureLabel = new javax.swing.JLabel();
+        maxTemperatureTextField = new javax.swing.JTextField();
+        maxTemperatureLabel = new javax.swing.JLabel();
+        feelsLikeTemeratureTextField = new javax.swing.JTextField();
+        feelsLikeTemperatureLabel = new javax.swing.JLabel();
+        minTemperatureTextField = new javax.swing.JTextField();
+        minTemperatureLabel = new javax.swing.JLabel();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        searchButton.setText("Search");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
+
+        searchTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchTextFieldActionPerformed(evt);
+            }
+        });
+
+        temperatureTextField.setEnabled(false);
+
+        temperatureLabel.setText("Temperature");
+
+        maxTemperatureTextField.setEnabled(false);
+
+        maxTemperatureLabel.setText("Max Temperature");
+
+        feelsLikeTemeratureTextField.setEnabled(false);
+
+        feelsLikeTemperatureLabel.setText("Feels Like Temperature");
+
+        minTemperatureTextField.setEnabled(false);
+
+        minTemperatureLabel.setText("Min Temperature");
+
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(maxTemperatureLabel)
+                            .addComponent(feelsLikeTemperatureLabel)
+                            .addComponent(minTemperatureLabel)
+                            .addComponent(temperatureLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
+                        .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(minTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(feelsLikeTemeratureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(maxTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(temperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(searchTextField))
+                .addGap(11, 11, 11)
+                .addComponent(searchButton)
+                .addGap(32, 32, 32))
+        );
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(searchButton)
+                    .addComponent(searchTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(37, 37, 37)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(temperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(temperatureLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(maxTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(maxTemperatureLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(feelsLikeTemeratureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(feelsLikeTemperatureLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(minTemperatureTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(minTemperatureLabel))
+                .addContainerGap(110, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public static void main(String[] args) {
-        dotenv = Dotenv.load();
-        API_KEY = dotenv.get("OPENWEATHER_API_KEY");
+    private void searchTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchTextFieldActionPerformed
         getWeatherData();
+    }//GEN-LAST:event_searchTextFieldActionPerformed
+
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        getWeatherData();
+    }//GEN-LAST:event_searchButtonActionPerformed
+
+    public static void main(String[] args) {
+        FlatDarkLaf.setup();
+        new WeatherApp().setVisible(true);
     }
 
-    private static void getWeatherData() {
-
+    private void getWeatherData() {
         String cityName = "New York";
         try {
             String urlString = URL + URLEncoder.encode(cityName, "UTF-8") + "&appid=" + API_KEY;
@@ -88,14 +191,19 @@ public class WeatherApp extends javax.swing.JFrame {
 
     }
 
-    private static void readJsonData(JSONObject json) {
+    private void readJsonData(JSONObject json) {
         JSONObject mainData = json.getJSONObject("main");
-        System.out.println(mainData);
         BigDecimal temp = (BigDecimal) mainData.getBigDecimal("temp");
-        System.out.println(temp);
+        BigDecimal tempMin = mainData.getBigDecimal("temp_min");
+        BigDecimal feelsLike = mainData.getBigDecimal("feels_like");
+        BigDecimal tempMax = mainData.getBigDecimal("temp_max");
+        temperatureTextField.setText(temp.toString());
+        maxTemperatureTextField.setText(tempMax.toString());
+        minTemperatureTextField.setText(tempMin.toString());
+        feelsLikeTemeratureTextField.setText(feelsLike.toString());
     }
 
-    private static String readData(HttpURLConnection connection) {
+    private String readData(HttpURLConnection connection) {
         try {
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -115,20 +223,17 @@ public class WeatherApp extends javax.swing.JFrame {
         return "";
     }
 
-    public static String readFullyAsString(InputStream inputStream, String encoding) throws IOException {
-        return readFully(inputStream).toString(encoding);
-    }
-
-    private static ByteArrayOutputStream readFully(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int length = 0;
-        while ((length = inputStream.read(buffer)) != -1) {
-            baos.write(buffer, 0, length);
-        }
-        return baos;
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField feelsLikeTemeratureTextField;
+    private javax.swing.JLabel feelsLikeTemperatureLabel;
+    private javax.swing.JPanel mainPanel;
+    private javax.swing.JLabel maxTemperatureLabel;
+    private javax.swing.JTextField maxTemperatureTextField;
+    private javax.swing.JLabel minTemperatureLabel;
+    private javax.swing.JTextField minTemperatureTextField;
+    private javax.swing.JButton searchButton;
+    private javax.swing.JTextField searchTextField;
+    private javax.swing.JLabel temperatureLabel;
+    private javax.swing.JTextField temperatureTextField;
     // End of variables declaration//GEN-END:variables
 }
